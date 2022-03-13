@@ -36,9 +36,9 @@ async def tryrun(coro,*args,**kargs):
 							raise e2
 
 						
-if setup.database=="replit":
-	from replit.database import AsyncDatabase
-	from replit import db
+from replit.database import AsyncDatabase
+from replit import db
+if db is not None:
 	repldb=AsyncDatabase(db.db_url)
 	
 	class dberror(Exception):
