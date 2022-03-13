@@ -28,7 +28,7 @@ class discordhandler(logging.Handler):
 
 
 
-
+#https://tutorial.vcokltfre.dev/tutorial/12-errors/
 class cogerrorhandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -49,14 +49,12 @@ async def on_command_error(self, ctx: commands.Context, error: commands.CommandE
 	await ctx.send(message, delete_after=5)
 	await ctx.message.delete(delay=5)
 
-client.add_cog(cogerrorhandler(client))
-
-
 
 havesetup=False
 def setup():
 	global havesetup
 	if havesetup==False:
+		client.add_cog(cogerrorhandler(client))
 		havesetup=True
 		dh = discordhandler()
 		dh.setLevel(logging.WARNING)
