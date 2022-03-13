@@ -2,6 +2,7 @@ import io
 import discord
 import traceback
 
+
 async def filefromstring(text,filename="file.txt"):
 	f = io.StringIO(str(text))
 	return discord.File(fp=f,filename=filename)
@@ -33,7 +34,7 @@ def fromcode(s):
 	return base64.b16decode(s.encode()).decode()
 
 def generate_password():
-	pwd.genword(entropy=512)
+	return pwd.genword(entropy=512)
 def hash_password(password):
 	return tocode(sha512_crypt.hash(password,rounds=1000))
 def verify_password(password,hash):

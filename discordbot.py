@@ -93,15 +93,23 @@ async def testname(ctx, member : typing.Union[discord.Member, discord.Role]):
 
 	
 @client.command()
-async def invite(ctx, member : discord.User):
-	print(member.bot)
-	print(type(member))
-
+async def invite(ctx, member : typing.Union[discord.User, discord.Role]):
+	# print(member.bot)
+	# print(type(member))
 	author_name = ctx.author.name
 	channel = discord.utils.get(ctx.guild.channels, name=author_name)
 	
-	await channel.send(f'{author_name} invite {member.name} to the channel')
+	await channel.send(f'{author_name} invite {member.mention} to the channel')
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
+
+
+@client.command()
+async def kick(ctx, member : typing.Union[discord.User, discord.Role]):
+	author_name = ctx.author.name
+	channel = discord.utils.get(ctx.guild.channels, name=author_name)
+	await channel.set_permissions(member, read_messages=False, send_messages=False)
+	await ctx.send(f'User {member.mention} has been kicked')
+
 
 
 @client.command()
@@ -119,12 +127,10 @@ async def get_channel(ctx):
 	print(channel.id)
 
 @client.command()
-# @commands.has_permissions(kick_members=True)
-async def kick(ctx, member: discord.Member):
-	if reason==None:
-		reason=" no reason provided"
-	await ctx.guild.kick(member)
-	await ctx.send(f'User {member.mention} has been kicked for {reason}')
+async def get_roles(ctx, member : discord.Member):
+	# role = discord.utils.get(member.server.roles, id="<role ID>")
+    await ctx.send(f'roles {member.roles}')
+
 
 async def runbot():
 	await client.start(os.getenv('TOKEN'))
