@@ -35,7 +35,6 @@ async def categoryid(ctx):
 	
 #https://stackoverflow.com/questions/44859165/async-exec-in-python
 async def async_exec(code,ctx):
-	print('hello')
 	try:
 		exec(
 			f'async def __aexecinternal(ctx): ' +
@@ -48,8 +47,7 @@ async def async_exec(code,ctx):
 	return tmp
 
 @client.command()
-async def aexec(ctx, *args):
-	ipt=' '.join(args)
+async def aexec(ctx, *, ipt):
 	try:
 		if ipt[:3]==ipt[-3:]=='```':
 			ipt=ipt[3:-3]
@@ -57,7 +55,8 @@ async def aexec(ctx, *args):
 			ipt=ipt[1:-1]
 	except:
 		pass
-	await ctx.send(file=filefromstring(await async_exec(ipt, ctx), "aexec.out"))
+	ans=await async_exec(ipt, ctx)
+	await ctx.send(file=await filefromstring(ans, "aexec.txt"))
 
 
 from replit import db
