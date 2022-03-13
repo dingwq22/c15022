@@ -49,6 +49,7 @@ async def getdb(ctx):
 	
 #https://stackoverflow.com/questions/44859165/async-exec-in-python
 async def async_exec(code,ctx):
+	global privatechannels
 	try:
 		exec(
 			f'async def __aexecinternal(ctx): ' +
@@ -96,7 +97,7 @@ async def on_member_join(member):
 
 		if privatechannels is None:
 			privatechannels=await db.get("privatechannels")
-		privatechannels[member.id]=channel.id
+		privatechannels[str(member.id)]=channel.id
 		await db.set("privatechannels",privatechannels)
   
 
@@ -112,7 +113,7 @@ async def invite(ctx, member : typing.Union[discord.User, discord.Role]):
 		privatechannels=await db.get("privatechannels")
 	author_name = ctx.author.name
 	# channel = discord.utils.get(ctx.guild.channels, name=author_name)
-	channel = client.get_channel(privatechannels[ctx.author.id])
+	channel = client.get_channel(privatechannels[str(ctx.author.id)])
 	await channel.send(f'{author_name} invite {member.mention} to the channel')
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
 
@@ -124,7 +125,7 @@ async def kick(ctx, member : typing.Union[discord.User, discord.Role]):
 		privatechannels=await db.get("privatechannels")
 	author_name = ctx.author.name
 	# channel = discord.utils.get(ctx.guild.channels, name=author_name)
-	channel = client.get_channel(privatechannels[ctx.author.id])
+	channel = client.get_channel(privatechannels[str(ctx.author.id)])
 	await channel.set_permissions(member, read_messages=False, send_messages=False)
 	await ctx.send(f'User {member.mention} has been kicked')
 
