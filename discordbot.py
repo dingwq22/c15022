@@ -55,11 +55,15 @@ async def on_member_join(member):
 
 
 @client.command()
-async def invite(ctx, member: discord.Member):
-	channel_id = db["privatechannels"][ctx.author]
-	channel = client.get_channel(950555429413486682)
-	await channel.send(f'{ctx.author} send an invite')
+async def invite(ctx, member : discord.User):
+	print(member.bot)
+	author_name = ctx.author.name
+	channel = discord.utils.get(ctx.guild.channels, name=author_name)
+	# print(channel.id)
+	
+	await channel.send(f'{author_name} send an invite')
 	await channel.send(f'{member.name} has joined the channel')
+	await channel.set_permissions(member, read_messages=True, send_messages=True)
 
 
 @client.command()
@@ -70,7 +74,11 @@ async def simulatejoin(ctx, member : discord.Member):
 async def testexception(ctx):
 	return 1/0
 
-
+@client.command()
+async def get_channel(ctx):
+	channel_name = ctx.author.name
+	channel = discord.utils.get(ctx.guild.channels, name=channel_name)
+	print(channel.id)
 
 async def runbot():
 	await client.start(os.getenv('TOKEN'))
