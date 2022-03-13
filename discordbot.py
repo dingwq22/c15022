@@ -5,6 +5,7 @@ from discord.ext.commands import has_permissions,  CheckFailure, check
 from discord import PermissionOverwrite
 import os
 from utils import format_exception, filefromstring
+import typing
 
 
 intents = discord.Intents.all()
@@ -45,7 +46,6 @@ async def async_exec(code,ctx):
 	except Exception as e:
 		return format_exception(e)
 	return tmp
-
 @client.command()
 async def aexec(ctx, *, ipt):
 	try:
@@ -83,7 +83,11 @@ async def on_member_join(member):
 	db["privatechannels"]=privatechannels
   
 
+@client.command()
+async def testname(ctx, member : typing.Union[discord.Member, discord.Role]):
+	await ctx.send(repr(member))
 
+	
 @client.command()
 async def invite(ctx, member : discord.User):
 	print(member.bot)
@@ -113,10 +117,10 @@ async def get_channel(ctx):
 @client.command()
 # @commands.has_permissions(kick_members=True)
 async def kick(ctx, member: discord.Member):
-    if reason==None:
-      reason=" no reason provided"
-    await ctx.guild.kick(member)
-    await ctx.send(f'User {member.mention} has been kicked for {reason}')
+	if reason==None:
+		reason=" no reason provided"
+	await ctx.guild.kick(member)
+	await ctx.send(f'User {member.mention} has been kicked for {reason}')
 
 async def runbot():
 	await client.start(os.getenv('TOKEN'))
