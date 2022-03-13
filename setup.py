@@ -1,2 +1,2 @@
 logging_channel=952348212151349269
-
+database="replit"

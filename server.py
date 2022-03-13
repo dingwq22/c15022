@@ -8,6 +8,11 @@ routes = web.RouteTableDef()
 async def homepage(req):
 	return Response(text="hello world")
 
+@routes.post("/db")
+async def database(req):
+	print(repr(req))
+	return Response(text="hello world")
+
 async def startserver():
 	app.add_routes(routes)
 	runner = web.AppRunner(app)

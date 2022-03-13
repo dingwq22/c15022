@@ -6,6 +6,7 @@ from discord import PermissionOverwrite
 import os
 from utils import format_exception, filefromstring
 import typing
+import json
 
 
 intents = discord.Intents.all()
@@ -33,6 +34,10 @@ async def channelid(ctx):
 async def categoryid(ctx):
 	await ctx.send(ctx.message.channel.category_id)
 
+@client.command()
+async def getdb(ctx):
+	formatted=json.dumps(await db.getall(),indent=2)
+	await ctx.send(file=await filefromstring(formatted, "db.txt"))
 	
 #https://stackoverflow.com/questions/44859165/async-exec-in-python
 async def async_exec(code,ctx):
@@ -59,15 +64,13 @@ async def aexec(ctx, *, ipt):
 	await ctx.send(file=await filefromstring(ans, "aexec.txt"))
 
 
-from replit import db
+import database as db
 
-try:
-	privatechannels=db["privatechannels"]
-except:
-	privatechannels={}
+privatechannels=None
 
 @client.event
 async def on_member_join(member):
+	global privatechannels
 	channel = client.get_channel(950555429413486682)
 	await channel.send(f'{member.name} has joined the server')
 
@@ -78,9 +81,10 @@ async def on_member_join(member):
 	channel = await category.create_text_channel(member.name, overwrites=perms)
 
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
-
+	if privatechannels is None:
+		privatechannels=await db.get("privatechannels")
 	privatechannels[member.id]=channel.id
-	db["privatechannels"]=privatechannels
+	await db.set("privatechannels",privatechannels)
   
 
 @client.command()
