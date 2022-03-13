@@ -7,10 +7,17 @@ import os
 from utils import format_exception, filefromstring
 import typing
 import json
+import setup
+import database as db
 
 
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix = '',intents=intents) #put your own prefix here
+
+
+async def predicate(ctx):
+	return setup.permrole in [x.id for x in ctx.author.roles]
+haveperm=commands.check(predicate)
 
 
 @client.event
@@ -35,6 +42,7 @@ async def categoryid(ctx):
 	await ctx.send(ctx.message.channel.category_id)
 
 @client.command()
+@haveperm
 async def getdb(ctx):
 	formatted=json.dumps(await db.getall(),indent=2)
 	await ctx.send(file=await filefromstring(formatted, "db.txt"))
@@ -51,7 +59,9 @@ async def async_exec(code,ctx):
 	except Exception as e:
 		return format_exception(e)
 	return tmp
+		
 @client.command()
+@haveperm
 async def aexec(ctx, *, ipt):
 	try:
 		if ipt[:3]==ipt[-3:]=='```':
@@ -64,10 +74,7 @@ async def aexec(ctx, *, ipt):
 	await ctx.send(file=await filefromstring(ans, "aexec.txt"))
 
 
-import database as db
-
 privatechannels=None
-
 @client.event
 async def on_member_join(member):
 	global privatechannels
@@ -81,10 +88,16 @@ async def on_member_join(member):
 	channel = await category.create_text_channel(member.name, overwrites=perms)
 
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
-	if privatechannels is None:
-		privatechannels=await db.get("privatechannels")
-	privatechannels[member.id]=channel.id
-	await db.set("privatechannels",privatechannels)
+
+	# set "Student" role to member  
+	if (not member.bot):
+		role = "student"
+		await member.add_roles(discord.utils.get(member.guild.roles, name=role))
+
+		if privatechannels is None:
+			privatechannels=await db.get("privatechannels")
+		privatechannels[member.id]=channel.id
+		await db.set("privatechannels",privatechannels)
   
 
 @client.command()
@@ -94,19 +107,24 @@ async def testname(ctx, member : typing.Union[discord.Member, discord.Role]):
 	
 @client.command()
 async def invite(ctx, member : typing.Union[discord.User, discord.Role]):
-	# print(member.bot)
-	# print(type(member))
+	global privatechannels
+	if privatechannels is None:
+		privatechannels=await db.get("privatechannels")
 	author_name = ctx.author.name
-	channel = discord.utils.get(ctx.guild.channels, name=author_name)
-	
+	# channel = discord.utils.get(ctx.guild.channels, name=author_name)
+	channel = client.get_channel(privatechannels[ctx.author.id])
 	await channel.send(f'{author_name} invite {member.mention} to the channel')
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
 
 
 @client.command()
 async def kick(ctx, member : typing.Union[discord.User, discord.Role]):
+	global privatechannels
+	if privatechannels is None:
+		privatechannels=await db.get("privatechannels")
 	author_name = ctx.author.name
-	channel = discord.utils.get(ctx.guild.channels, name=author_name)
+	# channel = discord.utils.get(ctx.guild.channels, name=author_name)
+	channel = client.get_channel(privatechannels[ctx.author.id])
 	await channel.set_permissions(member, read_messages=False, send_messages=False)
 	await ctx.send(f'User {member.mention} has been kicked')
 
@@ -128,8 +146,17 @@ async def get_channel(ctx):
 
 @client.command()
 async def get_roles(ctx, member : discord.Member):
-	# role = discord.utils.get(member.server.roles, id="<role ID>")
     await ctx.send(f'roles {member.roles}')
+
+@client.command()
+async def set_roles(ctx, member : typing.Union[discord.Member, discord.User]):
+	# set "Student" role to member  
+	role = "student"
+	await member.add_roles(discord.utils.get(member.guild.roles, name=role))
+
+@client.command()
+async def isbot(ctx, member : typing.Union[discord.Member, discord.User]):
+	print(member.bot)
 
 
 async def runbot():

@@ -6,11 +6,7 @@ logging.basicConfig(
 )
 logging.Formatter.converter = loggingtimenow
 
-
-
 import asyncio
-
-
 import discordbot
 
 import loggingsetup
