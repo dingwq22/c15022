@@ -2,14 +2,13 @@ import logging
 from discordbot import client
 from discord.ext import commands
 import asyncio
-import utils
+from utils import format_exception, filefromstring
 from setup import logging_channel
-import traceback
-import sys
+
 
 async def sendservererror(log_entry):
 	try:
-		file=await utils.filefromstring(log_entry,'exception.txt')
+		file=await filefromstring(log_entry,'exception.txt')
 		channel=client.get_channel(logging_channel)
 		await channel.send('**An Error Occured**',file=file)
 	except Exception as e:
@@ -55,8 +54,8 @@ class cogerrorhandler(commands.Cog):
 				# you can send it to a private channel you specify in setup.py by simply reraising the error
 				# it will then be caught and formatted in the logging.exception
 				# raise error
-				tracebackstring = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-				file=await utils.filefromstring(tracebackstring,'exception.txt')
+				tracebackstring = format_exception(error)
+				file=await filefromstring(tracebackstring,'exception.txt')
 				await ctx.send('there was an exception',file=file)
 			else:
 				await ctx.send(message, delete_after=5)

@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions,  CheckFailure, check
 from discord import PermissionOverwrite
 import os
-
+from utils import format_exception, filefromstring
 
 
 intents = discord.Intents.all()
@@ -15,10 +15,14 @@ client = commands.Bot(command_prefix = '',intents=intents) #put your own prefix 
 async def on_ready():
 	print("bot online") #will print "bot online" in the console when the bot is online
 
-    
 @client.command()
 async def ping(ctx):
-	await ctx.send("pong!") #simple command so that when you type "!ping" the bot will respond with "pong!"
+	#simple command so that when you type "!ping" the bot will respond with "pong!"
+	await ctx.send("pong!")
+
+@client.command()
+async def echo(ctx, text):
+	await ctx.send('```'+text+'```')
 
 @client.command()
 async def channelid(ctx):
@@ -27,6 +31,33 @@ async def channelid(ctx):
 @client.command()
 async def categoryid(ctx):
 	await ctx.send(ctx.message.channel.category_id)
+
+	
+#https://stackoverflow.com/questions/44859165/async-exec-in-python
+async def async_exec(code,ctx):
+	print('hello')
+	try:
+		exec(
+			f'async def __aexecinternal(ctx): ' +
+			''.join(f'\n {l}' for l in code.split('\n'))
+		)
+		# Get `__aexecinternal` from local variables, call it and return the result
+		tmp=await locals()['__aexecinternal'](ctx)
+	except Exception as e:
+		return format_exception(e)
+	return tmp
+
+@client.command()
+async def aexec(ctx, *args):
+	ipt=' '.join(args)
+	try:
+		if ipt[:3]==ipt[-3:]=='```':
+			ipt=ipt[3:-3]
+		elif ipt[:1]==ipt[-1:]=='`':
+			ipt=ipt[1:-1]
+	except:
+		pass
+	await ctx.send(file=filefromstring(await async_exec(ipt, ctx), "aexec.out"))
 
 
 from replit import db
@@ -57,12 +88,12 @@ async def on_member_join(member):
 @client.command()
 async def invite(ctx, member : discord.User):
 	print(member.bot)
+	print(type(member))
+
 	author_name = ctx.author.name
 	channel = discord.utils.get(ctx.guild.channels, name=author_name)
-	# print(channel.id)
 	
-	await channel.send(f'{author_name} send an invite')
-	await channel.send(f'{member.name} has joined the channel')
+	await channel.send(f'{author_name} invite {member.name} to the channel')
 	await channel.set_permissions(member, read_messages=True, send_messages=True)
 
 
@@ -79,6 +110,14 @@ async def get_channel(ctx):
 	channel_name = ctx.author.name
 	channel = discord.utils.get(ctx.guild.channels, name=channel_name)
 	print(channel.id)
+
+@client.command()
+# @commands.has_permissions(kick_members=True)
+async def kick(ctx, member: discord.Member):
+    if reason==None:
+      reason=" no reason provided"
+    await ctx.guild.kick(member)
+    await ctx.send(f'User {member.mention} has been kicked for {reason}')
 
 async def runbot():
 	await client.start(os.getenv('TOKEN'))
