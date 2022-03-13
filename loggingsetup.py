@@ -6,6 +6,7 @@ import utils
 from setup import logging_channel
 
 
+
 async def sendservererror(log_entry):
 	try:
 		file=await utils.filefromstring(log_entry,'exception.txt')
