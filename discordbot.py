@@ -29,6 +29,23 @@ async def ping(ctx):
 	#simple command so that when you type "!ping" the bot will respond with "pong!"
 	await ctx.send("pong!")
 
+@client.command(name="helloworld")
+async def ping2(ctx):
+	#simple command so that when you type "!ping" the bot will respond with "pong!"
+	await ctx.send("pong!")
+
+@client.command()
+@haveperm
+async def gettutorial(ctx):
+	f = open("tutorial.txt", "r")
+	await client.get_channel(952607462534565968).send(f.read())
+
+@client.event
+async def on_message(message):
+	await client.process_commands(message) 
+	if message.content.lower().startswith("how are you") and not message.author.bot:
+		await message.channel.send("Good!")
+
 @client.command()
 async def echo(ctx, text):
 	await ctx.send('```'+text+'```')

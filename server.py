@@ -23,6 +23,11 @@ async def database_request(req):
 			ans=await db.getall()
 		return json_response(ans)
 
+from utils import generate_password, hash_password
+@routes.get("/generate")
+async def generate(req):
+	pwd=generate_password()
+	return Response(text=f"password=\n{pwd}\n\n\npassword_hash=\n{hash_password(pwd)}")
 
 
 async def startserver():

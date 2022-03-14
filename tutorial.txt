@@ -1,0 +1,36 @@
+@everyone
+Since we did not have time to cover much in class, here are things we did not have time to go through:
+
+The code for the server bot "spark" (and this file) is availbe at
+https://replit.com/@c15022/c15022
+
+To have the bot always running, you need to set up https://uptimerobot.com/ to ping your bot every 5 minutes.
+https://dev.to/12944qwerty/hosting-a-discord-py-bot-with-repl-it-3l5a
+
+Here is how to have the bot respond to "how are you":
+```
+@client.event
+async def on_message(message):
+	await client.process_commands(message) 
+	if message.content.lower().startswith("how are you") and not message.author.bot:
+		await message.channel.send("Good!")
+```
+there can only be one on_message function; in particular, one needs to run `await client.process_commands(message)` or else the normal commands will not get processed.
+
+If you are experiencing a rate limit, you can run this bot locally by installing python (If you have not already)
+and then poetry from https://python-poetry.org/docs/.
+
+create a .env file in the project folder, similar in structure to https://replit.com/@c15022/c15022#.env.example
+Next we want to setup the environment variables. Open a shell (cmd on windows, terminal on Mac), and then run `source env.sh`. On windows see https://stackoverflow.com/questions/55500857/how-to-set-the-environment-variable-in-windows
+
+After that you can run `poetry install` and then `poetry run python3 main.py` in shell. 
+
+If you want to use the remote database when running locally, you need to set up more environment variables. You can generate a password here https://c15022.repl.co/generate, and replace url with your own repl url
+
+to get authentication to work, replace permid varaible in setup.py to your discord id.
+replace logging_channel to a channel you can access to get proper logging of errors.
+
+You can read more about what you can do here:
+https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html
+
+
